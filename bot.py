@@ -4,12 +4,14 @@ from telegram.ext import MessageHandler, Filters
 import logging
 import requests
 import time
+debug=False
 updater = Updater(token='1213698143:AAFRC-uNPz_2Xi-5Suy-F95E4Z7Ein-SccA', use_context=True)
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
+
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, I am CoronaIndia Bot. I am happy to help you. You can get the latest statistics of Covi-19 from me. \n Send /total for Total Statistics \n Send /state state_name to get State Statistics")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, I am CoronaIndia Bot. I am happy to help you. You can get the latest statistics of Covid-19 from me.\nSend /total for Total Statistics \nSend /state state_name to get State Statistics")
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
@@ -59,11 +61,21 @@ def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
 unknown_handler = MessageHandler(Filters.command, unknown)
 dispatcher.add_handler(unknown_handler)
-try:
-  updater.start_polling()
-  #updater.idle()
-except:
-  print("An exception occurred. Sleeping for 5 Seconds")
+
+print("Starting the bot...")
+if(debug==False):
+    while(True):
+        try:
+            updater.start_polling()
+        except:
+            print("An exception occurred. Sleeping for 5 Seconds")
+            time.sleep(5)
+else:
+    updater.start_polling()
+    updater.idle()
+
+
+
 
 
 
