@@ -14,19 +14,56 @@ if(debug):
 else:
     updater = Updater(token='1213698143:AAFRC-uNPz_2Xi-5Suy-F95E4Z7Ein-SccA', use_context=True)
 
+url = 'https://api.covid19india.org/data.json'
+
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
+state_codes= ['TT','MH', 'DL', 'TN', 'RJ', 'MP', 'UP', 'GJ', 'TG', 'AP', 'KL', 'JK', 'KA', 'HR', 'WB', 'PB', 'BR', 'OR', 'UT', 'CT', 'HP', 'AS', 'JH', 'CH', 'LA', 'AN', 'GA', 'PY', 'MN', 'TR', 'MZ', 'AR', 'DN', 'NL', 'ML', 'DD', 'LD', 'SK']
+
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, I am CoronaIndia Bot. I am happy to help you. You can get the latest statistics of Covid-19 from me.\nSend /total for Total Statistics \n Send /state state_name to get State Statistics")
+    welcome="Hi, I am CoronaIndia Bot\n"
+    total="For total stats send or click on /total\n"
+    state="For State stats send \"/state state_name\" For example \"/state telangana\"\n"
+    state_code="Or send /<state-code> For example /AP\nTo get list of statecodes send or clik on \n/codelist"
+    reply=welcome+total+state+state_code
+    context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
     adminbot.send_message(chat_id="687807496", text="New start -->"+str(update._effective_chat))
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
 
+def state_code(update,context):
+    text=update.message.text
+    code=text[1:].upper()
+    r = requests.get(url)
+    data = r.json()
+    state_data = data["statewise"]
+    for state in state_data:
+        if(state['statecode']==code):
+            curr_state=state
+            reply="COVID-19 Statistics for "+curr_state["state"]+"  :- Total cases : "+str(curr_state["confirmed"])+", Active cases : " +str(curr_state["active"])+", Recovered Cases : "+str(curr_state["recovered"])+", Deceased : "+str(curr_state["deaths"])
+            context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
+
+
+for code in state_codes:
+    state_code_handler=CommandHandler(code, state_code)
+    dispatcher.add_handler(state_code_handler)
+
+def state_code_list(update,context):
+    r = requests.get(url)
+    data = r.json()
+    state_data = data["statewise"]
+    reply="STATE CODES\n"
+    for state in state_data:
+        reply= reply +state["state"]+" : "+state["statecode"]+"\n"
+    context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
+
+state_code_list_handler = CommandHandler('codelist', state_code_list)
+dispatcher.add_handler(state_code_list_handler)
+
 def total(update, context):
-    url = 'https://api.covid19india.org/data.json'
     r = requests.get(url)
     data = r.json()
     state_data_with_total = data["statewise"]
@@ -45,7 +82,6 @@ dispatcher.add_handler(total_handler)
 def state(update, context):
     rec_state = ' '.join(context.args)
     if(rec_state.strip()!=''):
-        url = 'https://api.covid19india.org/data.json'
         r = requests.get(url)
         data = r.json()
         state_data = data["statewise"]
@@ -65,6 +101,9 @@ def state(update, context):
 
 state_handler = CommandHandler('state', state)
 dispatcher.add_handler(state_handler)
+
+
+
 
 def unknown(update, context):
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
