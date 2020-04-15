@@ -4,14 +4,23 @@ from telegram.ext import MessageHandler, Filters
 import logging
 import requests
 import time
+import telegram
 debug=False
-updater = Updater(token='1213698143:AAFRC-uNPz_2Xi-5Suy-F95E4Z7Ein-SccA', use_context=True)
+
+#687807496
+adminbot = telegram.Bot(token='1153123573:AAF-rWy5KcStsIb8mxhgXF5FKqhFJdzuWmI')
+if(debug):
+    updater = Updater(token='1233520288:AAEGhHdGospRuaoQZldP8-xqBI4Lj5pRNsg', use_context=True)
+else:
+    updater = Updater(token='1213698143:AAFRC-uNPz_2Xi-5Suy-F95E4Z7Ein-SccA', use_context=True)
+
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
                      level=logging.INFO)
 
 def start(update, context):
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, I am CoronaIndia Bot. I am happy to help you. You can get the latest statistics of Covid-19 from me.\nSend /total for Total Statistics \nSend /state state_name to get State Statistics")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Hi, I am CoronaIndia Bot. I am happy to help you. You can get the latest statistics of Covid-19 from me.\nSend /total for Total Statistics \n Send /state state_name to get State Statistics")
+    adminbot.send_message(chat_id="687807496", text="New start -->"+str(update._effective_chat))
 
 start_handler = CommandHandler('start', start)
 dispatcher.add_handler(start_handler)
