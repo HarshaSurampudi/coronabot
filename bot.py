@@ -15,6 +15,7 @@ else:
     updater = Updater(token='1213698143:AAFRC-uNPz_2Xi-5Suy-F95E4Z7Ein-SccA', use_context=True)
 
 url = 'https://api.covid19india.org/data.json'
+districtsUrl='https://api.covid19india.org/v2/state_district_wise.json'
 
 dispatcher = updater.dispatcher
 logging.basicConfig(format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
@@ -43,7 +44,8 @@ def state_code(update,context):
     for state in state_data:
         if(state['statecode']==code):
             curr_state=state
-            reply="COVID-19 Statistics for "+curr_state["state"]+"  :- Total cases : "+str(curr_state["confirmed"])+", Active cases : " +str(curr_state["active"])+", Recovered Cases : "+str(curr_state["recovered"])+", Deceased : "+str(curr_state["deaths"])
+            reply="COVID-19 Statistics for "+curr_state["state"]+"  :-\n\nTotal cases : "+str(curr_state["confirmed"])+", Active cases : " +str(curr_state["active"])+", Recovered Cases : "+str(curr_state["recovered"])+", Deceased : "+str(curr_state["deaths"])+"\n\nDistrict Wise Total Confirmed:\n\n"
+            reply+=get_dist_wise(curr_state["state"])
             context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
 
 
@@ -91,7 +93,8 @@ def state(update, context):
             
             if(rec_state.upper() in curr_state.upper()):
                 flag=1
-                reply= "COVID-19 Statistics for "+dict["state"]+"  :- Total cases : "+str(dict["confirmed"])+", Active cases : " +str(dict["active"])+", Recovered Cases : "+str(dict["recovered"])+", Deceased : "+str(dict["deaths"])
+                reply= "COVID-19 Statistics for "+dict["state"]+"  :-\n\nTotal cases : "+str(dict["confirmed"])+", Active cases : " +str(dict["active"])+", Recovered Cases : "+str(dict["recovered"])+", Deceased : "+str(dict["deaths"])+"\n\nDistrict Wise Total Confirmed:\n\n"
+                reply+=get_dist_wise(dict["state"])
                 context.bot.send_message(chat_id=update.effective_chat.id, text=reply)  
         if(flag==0):
             context.bot.send_message(chat_id=update.effective_chat.id, text="Couldn't find that. Try again")
@@ -101,6 +104,22 @@ def state(update, context):
 
 state_handler = CommandHandler('state', state)
 dispatcher.add_handler(state_handler)
+
+def get_dist_wise(state):
+    r = requests.get(districtsUrl)
+    data = r.json()
+    flag=False
+    for state_data in data:
+        if (state_data["state"]==state):
+            response=state_data["districtData"]
+            flag=True
+    if(flag):
+        reply=""
+        for district in response:
+            reply+=district["district"]+" : "+str(district["confirmed"])+"\n"
+        return reply
+    else:
+        return None
 
 
 
