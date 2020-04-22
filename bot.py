@@ -5,7 +5,7 @@ import logging
 import requests
 import time
 import telegram
-debug=True
+debug=False
 
 #687807496
 adminbot = telegram.Bot(token='1153123573:AAF-rWy5KcStsIb8mxhgXF5FKqhFJdzuWmI')
