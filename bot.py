@@ -5,7 +5,7 @@ import logging
 import requests
 import time
 import telegram
-debug=False
+debug=True
 
 #687807496
 adminbot = telegram.Bot(token='1153123573:AAF-rWy5KcStsIb8mxhgXF5FKqhFJdzuWmI')
@@ -38,15 +38,18 @@ dispatcher.add_handler(start_handler)
 def state_code(update,context):
     text=update.message.text
     code=text[1:].upper()
-    r = requests.get(url)
-    data = r.json()
-    state_data = data["statewise"]
-    for state in state_data:
-        if(state['statecode']==code):
-            curr_state=state
-            reply="COVID-19 Statistics for "+curr_state["state"]+"  :-\n\nTotal cases : "+str(curr_state["confirmed"])+", Active cases : " +str(curr_state["active"])+", Recovered Cases : "+str(curr_state["recovered"])+", Deceased : "+str(curr_state["deaths"])+"\n\nDistrict Wise Total Confirmed:\n\n"
-            reply+=get_dist_wise(curr_state["state"])
-            context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
+    if (code=="TT"):
+        total(update, context)
+    else:
+        r = requests.get(url)
+        data = r.json()
+        state_data = data["statewise"]
+        for state in state_data:
+            if(state['statecode']==code):
+                curr_state=state
+                reply="COVID-19 Statistics for "+curr_state["state"]+"  :-\n\nTotal cases : "+str(curr_state["confirmed"])+", Active cases : " +str(curr_state["active"])+", Recovered Cases : "+str(curr_state["recovered"])+", Deceased : "+str(curr_state["deaths"])+"\n\nDistrict Wise Total Confirmed:\n\n"
+                reply+=get_dist_wise(curr_state["state"])
+                context.bot.send_message(chat_id=update.effective_chat.id, text=reply)
 
 
 for code in state_codes:
